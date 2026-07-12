@@ -1,0 +1,44 @@
+# ---------------------------------------------------------------------------
+# TerangaLoc — Infrastructure de développement
+#
+# Fournit les services externes dont l'application a besoin en local :
+#   - db      : PostgreSQL 16 + PostGIS 3.4 (recherche géospatiale par rayon)
+#   - mailpit : serveur SMTP de test + interface web pour lire les emails
+#
+# Démarrage :  docker compose up -d
+# Arrêt      :  docker compose down            (les données sont conservées)
+# Reset total:  docker compose down -v          (SUPPRIME le volume de données)
+# ---------------------------------------------------------------------------
+services:
+  db:
+    # Image officielle PostGIS : PostgreSQL + l'extension géospatiale préinstallée.
+    image: postgis/postgis:16-3.4
+    container_name: terangaloc_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: terangaloc
+      POSTGRES_USER: terangaloc
+      POSTGRES_PASSWORD: secret
+    ports:
+      # Exposé sur 5433 côté hôte pour éviter tout conflit avec un Postgres local (5432).
+      - "5433:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      # Laravel ne doit se connecter qu'une fois la base réellement prête.
+      test: ["CMD-SHELL", "pg_isready -U terangaloc -d terangaloc"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mailpit:
+    # Capture tous les emails envoyés par l'app (aucun email réel n'est expédié en dev).
+    image: axllent/mailpit:latest
+    container_name: terangaloc_mailpit
+    restart: unless-stopped
+    ports:
+      - "1025:1025"   # SMTP (configuré dans backend/.env)
+      - "8025:8025"   # Interface web : http://localhost:8025
+
+volumes:
+  db_data:

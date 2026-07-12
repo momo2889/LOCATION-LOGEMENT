@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Guide d'utilisation — TerangaLoc</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm; }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: "Segoe UI", system-ui, Arial, sans-serif; color: #0f172a; line-height: 1.55; font-size: 12px; margin: 0; }
+  .cover { background: linear-gradient(135deg, #0f766e, #0b3d3a); color: #fff; border-radius: 16px; padding: 30px 32px; margin-bottom: 22px; }
+  .cover .logo { font-size: 22px; font-weight: 800; letter-spacing: -.3px; }
+  .cover .logo b { color: #5eead4; }
+  .cover h1 { font-size: 26px; margin: 14px 0 8px; font-weight: 800; }
+  .cover p { margin: 0; opacity: .92; max-width: 560px; }
+  .cover .meta { margin-top: 14px; font-size: 11px; opacity: .8; }
+  h2 { color: #0f766e; font-size: 17px; margin: 22px 0 8px; padding-bottom: 6px; border-bottom: 2px solid #e6ebf1; page-break-after: avoid; }
+  h3 { font-size: 13.5px; margin: 14px 0 4px; page-break-after: avoid; }
+  p { margin: 6px 0; }
+  ul, ol { margin: 6px 0; padding-left: 20px; }
+  li { margin: 3px 0; }
+  code { background: #f1f5f9; border-radius: 4px; padding: 1px 5px; font-family: "Consolas", monospace; font-size: 11px; color: #0b5a54; }
+  pre { background: #0e1626; color: #e8eef5; border-radius: 10px; padding: 12px 14px; overflow-x: auto; font-family: "Consolas", monospace; font-size: 11px; line-height: 1.5; page-break-inside: avoid; }
+  pre code { background: none; color: inherit; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 8px 0; font-size: 11px; page-break-inside: avoid; }
+  th, td { border: 1px solid #e6ebf1; padding: 7px 10px; text-align: left; vertical-align: top; }
+  th { background: #ecfdf5; color: #0b5a54; font-weight: 700; }
+  tr:nth-child(even) td { background: #f8fafc; }
+  .note { background: #fff1e6; border: 1px solid #f9a86a; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: 11px; }
+  .section { page-break-inside: avoid; }
+  a { color: #0f766e; text-decoration: none; }
+  .tree { background: #f8fafc; border: 1px solid #e6ebf1; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="logo">🏠 Teranga<b>Loc</b></div>
+  <h1>Guide d'utilisation</h1>
+  <p>Plateforme de location de logements au Sénégal — annonces vérifiées, recherche par quartier, visite immersive 360°, messagerie et offres de visibilité Premium.</p>
+  <div class="meta">Guide complet — de l'installation à l'utilisation de chaque fonctionnalité.</div>
+</div>
+
+<div class="section">
+<h2>1. Architecture du projet</h2>
+<pre class="tree"><code>terangaloc/
+├── backend/                 API Laravel (PHP) — authentification, quartiers, profils
+├── frontend/                Site principal (HTML/CSS/JS statique) ← l'application
+│   ├── accueil.html         Page d'accueil + recherche
+│   ├── recherche.html       Résultats + carte + filtres
+│   ├── logement.html        Fiche d'un logement + visite 360°
+│   ├── publier.html         Publier une annonce (propriétaire)
+│   ├── connexion.html       Connexion / Inscription
+│   ├── tableau-de-bord.html Espace personnel
+│   ├── messagerie.html      Messagerie
+│   ├── abonnement.html      Offres Premium
+│   └── assets/              api.js, app.js, theme.css, pano/ (panoramas 360°)
+├── frontend-react-legacy/   Ancienne version React (archivée, non utilisée)
+└── docker-compose.yml       Base de données PostgreSQL + Mailpit</code></pre>
+</div>
+
+<div class="section">
+<h2>2. Prérequis</h2>
+<p>À installer une seule fois sur la machine :</p>
+<ul>
+  <li><b>PHP 8.2+</b> et <b>Composer</b> (backend Laravel)</li>
+  <li><b>Docker Desktop</b> (base de données PostgreSQL)</li>
+  <li><b>VS Code</b> + extension <b>Live Server</b>, ou tout serveur statique (<code>php -S</code>, <code>npx http-server</code>…)</li>
+  <li>Un navigateur récent (Chrome, Edge, Firefox)</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>3. Installation (première fois)</h2>
+<h3>a) Récupérer le projet</h3>
+<pre><code>git clone https://github.com/momo2889/LOCATION-LOGEMENT.git
+cd LOCATION-LOGEMENT</code></pre>
+<h3>b) Base de données (Docker)</h3>
+<pre><code>docker compose up -d</code></pre>
+<p>Démarre PostgreSQL (port 5433) et Mailpit (emails de test : http://localhost:8025).</p>
+<h3>c) Backend (Laravel)</h3>
+<pre><code>cd backend
+composer install
+cp .env.example .env          # créer le fichier d'environnement
+php artisan key:generate      # générer la clé de l'application
+php artisan migrate --seed    # créer les tables + données de démo</code></pre>
+<h3>d) Frontend</h3>
+<p>Aucune installation : c'est un site statique, rien à compiler.</p>
+</div>
+
+<div class="section">
+<h2>4. Démarrer l'application (chaque session)</h2>
+<p>Ouvrir <b>3 choses</b> :</p>
+<ol>
+  <li><b>La base de données</b> (si pas déjà lancée) : <code>docker compose up -d</code></li>
+  <li><b>Le serveur backend</b> (dans <code>backend/</code>) : <code>php artisan serve</code> → API sur http://127.0.0.1:8000</li>
+  <li><b>Le site</b> (dans <code>frontend/</code>) : clic droit sur <code>accueil.html</code> → <b>Open with Live Server</b>, ou <code>php -S 127.0.0.1:5500</code> puis ouvrir http://127.0.0.1:5500/accueil.html</li>
+</ol>
+<div class="note">⚠️ Toujours passer par un serveur (http://…), <b>jamais</b> en <code>file://</code>, sinon les appels à l'API sont bloqués.</div>
+</div>
+
+<div class="section">
+<h2>5. Comptes de démonstration</h2>
+<p>Créés par <code>php artisan migrate --seed</code>. Mot de passe commun : <b>Password123!</b></p>
+<table>
+  <tr><th>Rôle</th><th>Email</th></tr>
+  <tr><td>Locataire</td><td>locataire@terangaloc.sn</td></tr>
+  <tr><td>Propriétaire</td><td>proprietaire@terangaloc.sn</td></tr>
+  <tr><td>Admin</td><td>admin@terangaloc.sn</td></tr>
+</table>
+<p>On peut aussi créer un nouveau compte depuis <b>Connexion → Inscription</b>.</p>
+</div>
+
+<div class="section">
+<h2>6. Utilisation, fonctionnalité par fonctionnalité</h2>
+
+<h3>🏠 Accueil</h3>
+<ul>
+  <li>Barre de recherche : choisir un <b>quartier</b>, un <b>type</b>, un <b>budget max</b>, puis <b>Rechercher</b> → résultats déjà filtrés.</li>
+  <li>Section « Logements vedettes » : les meilleures annonces mises en avant.</li>
+</ul>
+
+<h3>🔍 Recherche</h3>
+<ul>
+  <li>Filtres : texte (quartier/type), <b>type</b>, <b>budget max</b>, <b>durée</b> (longue/courte), <b>tri</b> (pertinence, prix, surface).</li>
+  <li>La <b>carte</b> affiche les prix ; survoler une annonce met en évidence son point.</li>
+</ul>
+
+<h3>🖼️ Fiche logement</h3>
+<ul>
+  <li><b>Visite immersive 360°</b> : faire glisser pour explorer l'intérieur ; plein écran pour l'effet casque VR.</li>
+  <li>Galerie, caractéristiques (chambres, surface, meublé…), description.</li>
+  <li><b>« Contacter le propriétaire »</b> → ouvre la messagerie avec un message pré-rempli sur ce logement.</li>
+</ul>
+
+<h3>👤 Connexion / Inscription</h3>
+<ul>
+  <li><b>Connexion</b> : email + mot de passe.</li>
+  <li><b>Inscription</b> : choisir l'espace (<b>Locataire</b> 🔑 ou <b>Propriétaire</b> 🏠), puis nom, email, téléphone et mot de passe (8 caractères min., avec majuscule, minuscule et chiffre).</li>
+  <li>Une fois connecté : nom + bouton <b>Déconnexion</b> dans le menu.</li>
+</ul>
+
+<h3>📊 Tableau de bord</h3>
+<ul>
+  <li>Accès réservé aux personnes connectées (sinon redirection).</li>
+  <li>Salutation personnalisée, statistiques et graphiques.</li>
+</ul>
+
+<h3>💬 Messagerie</h3>
+<ul>
+  <li>Conversations à gauche, discussion à droite.</li>
+  <li>Arrivée depuis une fiche : conversation avec le bon propriétaire ouverte automatiquement.</li>
+</ul>
+
+<h3>➕ Publier une annonce</h3>
+<ul>
+  <li>Réservé aux personnes connectées.</li>
+  <li>3 étapes : <b>Informations</b> (titre, type, quartier, loyer…), <b>Photos &amp; 360°</b>, <b>Vérification</b> et envoi.</li>
+  <li>La liste des <b>quartiers</b> vient du backend.</li>
+</ul>
+
+<h3>⭐ Abonnement Premium (côté propriétaire)</h3>
+<ul>
+  <li>3 offres : <b>Gratuit</b>, <b>Premium</b>, <b>Pro/Agence</b>.</li>
+  <li>Une annonce Premium est <b>mise en avant</b> (remonte en tête des résultats) — de façon <b>transparente pour le locataire</b>, sans badge visible.</li>
+</ul>
+
+<h3>🌙 Confort</h3>
+<ul>
+  <li>Bouton 🌙 / ☀️ : thème clair / sombre (mémorisé).</li>
+  <li><b>Ctrl + K</b> : recherche rapide (pages, quartiers, logements).</li>
+  <li>Cœur 🤍 : ajouter aux favoris.</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>7. Ce qui est réel vs. démonstration</h2>
+<p><b>Branché au backend (données réelles, persistantes) :</b></p>
+<ul>
+  <li>Inscription, connexion, déconnexion, mot de passe oublié</li>
+  <li>Tableau de bord personnalisé (utilisateur connecté)</li>
+  <li>Liste des quartiers</li>
+</ul>
+<p><b>Encore en données de démonstration</b> (backend à construire) :</p>
+<ul>
+  <li>Les logements (recherche, fiche, publication) et la messagerie utilisent des données d'exemple locales.</li>
+  <li>L'abonnement Premium et le paiement sont une démonstration (Wave / Orange Money / carte à intégrer plus tard).</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>8. Dépannage</h2>
+<table>
+  <tr><th>Problème</th><th>Solution</th></tr>
+  <tr><td>Le site ne se connecte pas / erreur réseau</td><td>Vérifier que <code>php artisan serve</code> tourne (port 8000)</td></tr>
+  <tr><td>« connection refused » sur la base</td><td>Lancer <code>docker compose up -d</code> et attendre que la base soit prête</td></tr>
+  <tr><td>Appels API bloqués (CORS)</td><td>Servir le site via http:// (pas <code>file://</code>) ; le CORS autorise déjà tout localhost</td></tr>
+  <tr><td>Photos manquantes</td><td>Simple souci réseau ; une image de remplacement s'affiche</td></tr>
+  <tr><td>Après modif de config Laravel</td><td><code>php artisan config:clear</code></td></tr>
+</table>
+</div>
+
+<div class="section">
+<h2>9. Adresses utiles (en local)</h2>
+<table>
+  <tr><th>Service</th><th>Adresse</th></tr>
+  <tr><td>Site</td><td>http://127.0.0.1:5500/accueil.html</td></tr>
+  <tr><td>API</td><td>http://127.0.0.1:8000/api</td></tr>
+  <tr><td>Emails de test (Mailpit)</td><td>http://localhost:8025</td></tr>
+</table>
+</div>
+
+</body>
+</html>

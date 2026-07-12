@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="TerangaLoc — Trouvez votre logement au Sénégal, en toute confiance." />
+    <title>TerangaLoc — Location de logements au Sénégal</title>
+
+    <!-- Cartographie (page Recherche) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Visite immersive 360° (page Détail logement) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css" />
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <!-- Librairies externes exposées en global (window.L, window.pannellum, window.Chart) -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

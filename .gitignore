@@ -1,0 +1,23 @@
+# Dépendances
+/backend/vendor
+node_modules/
+
+# Ancien front React archivé (build)
+/frontend-react-legacy/dist
+
+# Environnement (ne jamais versionner les secrets)
+/backend/.env
+/frontend/.env
+
+# Build & cache
+/frontend/dist
+/backend/storage/*.key
+/backend/storage/framework/cache/*
+/backend/storage/logs/*.log
+
+# OS / éditeurs
+.DS_Store
+Thumbs.db
+.idea
+.vscode/*
+!.vscode/extensions.json
